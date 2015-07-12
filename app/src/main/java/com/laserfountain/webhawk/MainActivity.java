@@ -1,9 +1,13 @@
 package com.laserfountain.webhawk;
 
 import android.os.Bundle;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
@@ -12,7 +16,10 @@ import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
 
-    private ListView listView;
+    private RecyclerView listView;
+    private RecyclerView.LayoutManager layoutManager;
+    SwipeRefreshLayout swipeRefreshLayout;
+
     ArrayList<Website> websites;
     WebsiteAdapter arrayAdapter;
 
@@ -21,9 +28,16 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        listView = (RecyclerView) findViewById(R.id.listView);
+        swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.activity_main_swipe_refresh_layout);
 
-        listView = (ListView) findViewById(R.id.listView);
-        listView.setEmptyView(findViewById(R.id.empty));
+        // use this setting to improve performance if you know that changes
+        // in content do not change the layout size of the RecyclerView
+        listView.setHasFixedSize(true);
+
+        // use a linear layout manager
+        layoutManager = new LinearLayoutManager(this);
+        listView.setLayoutManager(layoutManager);
 
         websites = new ArrayList<Website>();
         arrayAdapter = new WebsiteAdapter(this, websites);
@@ -31,9 +45,22 @@ public class MainActivity extends AppCompatActivity {
         websites.add(new Website("http://maltelenz.com", arrayAdapter));
         websites.add(new Website("http://www.wowloot.com", arrayAdapter));
 
+        // Hide the empty default view if there are items
+        if (!websites.isEmpty()) {
+            findViewById(R.id.empty).setVisibility(View.GONE);
+        }
+
         checkAll();
 
         listView.setAdapter(arrayAdapter);
+
+        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                checkAll();
+            }
+        });
+        swipeRefreshLayout.setColorSchemeResources(R.color.primary, R.color.primary_dark);
     }
 
     @Override
@@ -54,10 +81,6 @@ public class MainActivity extends AppCompatActivity {
         if (id == R.id.action_settings) {
             return true;
         }
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_refresh) {
-            checkAll();
-        }
 
         return super.onOptionsItemSelected(item);
     }
@@ -66,5 +89,6 @@ public class MainActivity extends AppCompatActivity {
         for (Website website : websites) {
             website.check();
         }
+        swipeRefreshLayout.setRefreshing(false);
     }
 }
