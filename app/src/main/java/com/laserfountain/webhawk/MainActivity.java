@@ -1,10 +1,13 @@
 package com.laserfountain.webhawk;
 
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -31,8 +34,8 @@ public class MainActivity extends AppCompatActivity {
         listView = (RecyclerView) findViewById(R.id.listView);
         swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.activity_main_swipe_refresh_layout);
 
-        // use this setting to improve performance if you know that changes
-        // in content do not change the layout size of the RecyclerView
+        // using this to improve performance as changes in content
+        // do not change the layout size of the RecyclerView
         listView.setHasFixedSize(true);
 
         // use a linear layout manager
@@ -42,6 +45,7 @@ public class MainActivity extends AppCompatActivity {
         websites = new ArrayList<Website>();
         arrayAdapter = new WebsiteAdapter(this, websites);
 
+        // Add some hardcoded websites
         websites.add(new Website("http://maltelenz.com", arrayAdapter));
         websites.add(new Website("http://www.wowloot.com", arrayAdapter));
 
@@ -52,10 +56,11 @@ public class MainActivity extends AppCompatActivity {
 
         checkAll();
 
+        // Set up the view
         listView.addItemDecoration(new DividerItemDecoration(this));
-
         listView.setAdapter(arrayAdapter);
 
+        // Set up swipe to refresh
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
@@ -63,7 +68,30 @@ public class MainActivity extends AppCompatActivity {
             }
         });
         swipeRefreshLayout.setColorSchemeResources(R.color.primary, R.color.primary_dark);
+
+        // Set up a timer to update the view every minute, needed for timestamps to update.
+        Thread timer = new Thread() {
+            public void run () {
+                for (;;) {
+                    uiCallback.sendEmptyMessage(0);
+                    try {
+                        Thread.sleep(60000);    // sleep for 60 seconds
+                    } catch (InterruptedException e) {
+                        // Do nothing
+                        Log.e("WebHawk", "InterruptedException in update thread");
+                    }
+                }
+            }
+        };
+        timer.start();
+
     }
+
+    private Handler uiCallback = new Handler () {
+        public void handleMessage (Message msg) {
+            arrayAdapter.notifyDataSetChanged();
+        }
+    };
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

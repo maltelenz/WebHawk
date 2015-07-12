@@ -1,6 +1,7 @@
 package com.laserfountain.webhawk;
 
 import android.os.AsyncTask;
+import android.text.format.DateUtils;
 import android.util.Log;
 
 import java.io.BufferedReader;
@@ -86,5 +87,21 @@ public class Website {
 
     public String getURL() {
         return url.toString();
+    }
+
+    public String getHumanTimeChecked()
+    {
+        long milliSecondsInFourHours = 4*60*60*1000;
+
+        long timeDifferenceInMilliSeconds = new Date().getTime() - checked.getTime();
+
+        if ( timeDifferenceInMilliSeconds < milliSecondsInFourHours)
+        {
+            return DateUtils.getRelativeTimeSpanString(checked.getTime()).toString();
+        }
+        else
+        {
+            return checked.toString();
+        }
     }
 }

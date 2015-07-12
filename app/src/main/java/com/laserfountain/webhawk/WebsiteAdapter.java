@@ -62,7 +62,7 @@ public class WebsiteAdapter extends RecyclerView.Adapter<WebsiteAdapter.ViewHold
             holder.up.setVisibility(View.GONE);
             holder.error.setVisibility(View.VISIBLE);
         }
-        holder.date.setText(website.getChecked().toString());
+        holder.date.setText(website.getHumanTimeChecked());
     }
 
     // Return the size of your dataset (invoked by the layout manager)
