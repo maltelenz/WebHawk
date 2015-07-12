@@ -52,6 +52,8 @@ public class MainActivity extends AppCompatActivity {
 
         checkAll();
 
+        listView.addItemDecoration(new DividerItemDecoration(this));
+
         listView.setAdapter(arrayAdapter);
 
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {

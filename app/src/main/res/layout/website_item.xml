@@ -1,25 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical" android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:orientation="horizontal"
+    android:layout_height="wrap_content"
+    android:minHeight="72dp"
+    android:layout_width="match_parent">
+
+    <ImageView
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:id="@+id/up"
+        android:src="@drawable/ic_done_black_24dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginLeft="16dp" />
+
+    <ImageView
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:id="@+id/error"
+        android:src="@drawable/ic_error_black_24dp"
+        android:tint="@color/error"
+        android:layout_marginLeft="16dp"
+        android:layout_marginTop="16dp" />
 
     <LinearLayout
-        android:orientation="horizontal"
+        android:orientation="vertical"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
-        <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/up"
-            android:src="@drawable/ic_done_black_24dp" />
-
-        <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/error"
-            android:src="@drawable/ic_error_black_24dp"
-            android:tint="@color/error" />
+        android:layout_height="match_parent"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"
+        android:paddingTop="16dp"
+        android:paddingBottom="16dp">
 
         <TextView
             android:layout_width="wrap_content"
@@ -27,19 +37,11 @@
             android:textAppearance="?android:attr/textAppearanceMedium"
             android:id="@+id/url"
             android:text="http://example.com" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:id="@+id/date_checked"
+            android:text="Sun Jul 12 21:44" />
     </LinearLayout>
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceSmall"
-        android:id="@+id/date_checked"
-        android:text="Sun Jul 12 21:44" />
-
-    <LinearLayout
-        android:layout_marginTop="5dp"
-        android:layout_marginBottom="5dp"
-        android:background="@color/accent"
-        android:layout_width="match_parent"
-        android:layout_height="1dp"/>﻿
 </LinearLayout>
