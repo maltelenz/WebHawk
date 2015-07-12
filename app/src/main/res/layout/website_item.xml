@@ -9,7 +9,8 @@
         android:layout_width="40dp"
         android:layout_height="40dp"
         android:id="@+id/up"
-        android:src="@drawable/ic_done_black_24dp"
+        android:src="@drawable/ic_check_circle_black_48dp"
+        android:tint="@color/success"
         android:layout_marginTop="16dp"
         android:layout_marginLeft="16dp" />
 
@@ -17,7 +18,7 @@
         android:layout_width="40dp"
         android:layout_height="40dp"
         android:id="@+id/error"
-        android:src="@drawable/ic_error_black_24dp"
+        android:src="@drawable/ic_error_black_48dp"
         android:tint="@color/error"
         android:layout_marginLeft="16dp"
         android:layout_marginTop="16dp" />
