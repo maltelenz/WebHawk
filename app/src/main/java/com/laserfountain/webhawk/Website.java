@@ -4,6 +4,9 @@ import android.os.AsyncTask;
 import android.text.format.DateUtils;
 import android.util.Log;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -21,12 +24,16 @@ public class Website {
     private boolean alive;
 
     public Website(String uriString, WebsiteAdapter adapterIn) {
+        this(uriString, new Date(0), adapterIn);
+    }
+
+    public Website(String uriString, Date checkedIn, WebsiteAdapter adapterIn) {
         try {
             url = new URL(uriString);
         } catch (MalformedURLException mue) {
             malformedURL = true;
         }
-        checked = new Date(0);
+        checked = checkedIn;
         adapter = adapterIn;
     }
 
@@ -103,5 +110,16 @@ public class Website {
         {
             return checked.toString();
         }
+    }
+
+    public JSONObject getJSONObject() {
+        JSONObject obj = new JSONObject();
+        try {
+            obj.put("url", this.url.toString());
+            obj.put("checked", this.checked.getTime());
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return obj;
     }
 }
