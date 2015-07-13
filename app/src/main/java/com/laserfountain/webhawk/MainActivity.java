@@ -28,7 +28,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 
-public class MainActivity extends AppCompatActivity implements AddWebsite.NoticeDialogListener {
+public class MainActivity extends AppCompatActivity implements AddWebsite.NoticeDialogListener, Website.WebsiteUpdatedListener{
 
     private RecyclerView listView;
     private RecyclerView.LayoutManager layoutManager;
@@ -97,6 +97,7 @@ public class MainActivity extends AppCompatActivity implements AddWebsite.Notice
 
     private Handler uiCallback = new Handler () {
         public void handleMessage (Message msg) {
+            saveToStorage();
             arrayAdapter.notifyDataSetChanged();
         }
     };
@@ -140,13 +141,20 @@ public class MainActivity extends AppCompatActivity implements AddWebsite.Notice
     }
 
     void addWebsite(String url) {
-        Website newWebsite = new Website(url, arrayAdapter);
+        Website newWebsite = new Website(url, this);
         if (newWebsite.isMalformedURL()) {
             showAddDialog(url);
             return;
         }
         websites.add(newWebsite);
 
+        saveToStorage();
+
+        // Refresh the listing
+        arrayAdapter.notifyDataSetChanged();
+    }
+
+    private void saveToStorage() {
         SharedPreferences preferences = getPreferences(Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = preferences.edit();
 
@@ -157,9 +165,6 @@ public class MainActivity extends AppCompatActivity implements AddWebsite.Notice
 
         editor.putStringSet("allWebsites", set);
         editor.commit();
-
-        // Refresh the listing
-        arrayAdapter.notifyDataSetChanged();
     }
 
     public void loadFromStorage() {
@@ -172,8 +177,20 @@ public class MainActivity extends AppCompatActivity implements AddWebsite.Notice
             try {
                 JSONObject jsonObject = new JSONObject(s);
                 String url = jsonObject.getString("url");
-                Date checked = new Date(jsonObject.getLong("checked"));
-                Website website = new Website(url, checked, arrayAdapter);
+                Date checked;
+                try {
+                    checked = new Date(jsonObject.getLong("checked"));
+                } catch (JSONException e) {
+                    checked = new Date(0);
+                }
+                Boolean alive;
+                try {
+                    alive = jsonObject.getBoolean("alive");
+                } catch (JSONException e) {
+                    alive = false;
+                }
+                Website website = new Website(url, checked, this);
+                    website.setAlive(alive);
 
                 items.add(website);
 
@@ -191,5 +208,11 @@ public class MainActivity extends AppCompatActivity implements AddWebsite.Notice
     public void onDialogPositiveClick(DialogFragment dialog) {
         EditText urlField = (EditText) dialog.getDialog().findViewById(R.id.add_url);
         addWebsite(urlField.getText().toString());
+    }
+
+    @Override
+    public void onWebsiteUpdated() {
+        arrayAdapter.notifyDataSetChanged();
+        saveToStorage();
     }
 }

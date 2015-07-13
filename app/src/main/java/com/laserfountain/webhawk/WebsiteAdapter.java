@@ -1,17 +1,10 @@
 package com.laserfountain.webhawk;
 
 import android.content.Context;
-import android.content.res.TypedArray;
-import android.graphics.Canvas;
-import android.graphics.drawable.Drawable;
-import android.media.Image;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
-import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -55,7 +48,7 @@ public class WebsiteAdapter extends RecyclerView.Adapter<WebsiteAdapter.ViewHold
         Website website = websites.get(position);
         // - replace the contents of the views with that element
         holder.url.setText(website.getURL());
-        if (website.isUp()) {
+        if (website.isAlive()) {
             holder.up.setVisibility(View.VISIBLE);
             holder.error.setVisibility(View.GONE);
         } else {
