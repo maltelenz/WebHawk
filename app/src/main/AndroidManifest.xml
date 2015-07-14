@@ -20,7 +20,7 @@
         </activity>
 
         <service
-            android:name=".WebsiteChecker"
+            android:name=".UpdateService"
             android:enabled="true"
             android:exported="false" >
         </service>

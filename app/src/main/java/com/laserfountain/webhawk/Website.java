@@ -13,82 +13,57 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.Serializable;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Date;
 
-public class Website {
-    private WebsiteAdapter adapter;
-
-    WebsiteUpdatedListener updateListener;
-
+public class Website  implements Serializable {
     private URL url;
     private Date checked;
 
     private boolean malformedURL;
     private boolean alive;
 
-    public Website(String uriString, Activity activity) {
-        this(uriString, new Date(0), activity);
+    public Website(String uriString) {
+        this(uriString, new Date(0));
     }
 
-    public Website(String uriString, Date checkedIn, Activity activity) {
+    public Website(String uriString, Date checkedIn) {
         try {
             url = new URL(uriString);
         } catch (MalformedURLException mue) {
             malformedURL = true;
         }
         checked = checkedIn;
-        updateListener = (WebsiteUpdatedListener) activity;
     }
 
-    public interface WebsiteUpdatedListener {
-        public void onWebsiteUpdated();
-    }
-
-    private class DownloadWebsiteTask extends AsyncTask<URL, Void, Bundle> {
-        private final String ALIVE_KEY = "alive";
-        // Do the long-running work in here
-        protected Bundle doInBackground(URL... urls) {
-            Log.d("WebHawk", "Checking page: " + urls[0]);
-            Boolean alive = true;
-            InputStream inputStream = null;
-            BufferedReader bufferedReader;
-            String line;
-            String fullResponse = "";
-
-            try {
-                inputStream = urls[0].openStream();
-                bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
-
-                while ((line = bufferedReader.readLine()) != null) {
-                    fullResponse.concat(line);
-                }
-            } catch (IOException ioe) {
-                alive = false;
-            } finally {
-                try {
-                    if (inputStream != null) inputStream.close();
-                } catch (IOException ioe) {
-                    // nothing to see here
-                }
-            }
-            Log.d("WebHawk", "Result page: " + urls[0] + " ---> " + alive);
-            Bundle result = new Bundle();
-            result.putBoolean(ALIVE_KEY, alive);
-            return result;
-        }
-
-        @Override
-        protected void onPostExecute(Bundle result) {
-            alive = result.getBoolean(ALIVE_KEY);
-            checked = new Date();
-            // Alert the view that we have changed the result
-            updateListener.onWebsiteUpdated();
-        }
-    }
     void check() {
-        new DownloadWebsiteTask().execute(url);
+        Log.d("WebHawk", "Checking page: " + url);
+        InputStream inputStream = null;
+        BufferedReader bufferedReader;
+        String line;
+        String fullResponse = "";
+
+        try {
+            inputStream = url.openStream();
+            bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
+
+            while ((line = bufferedReader.readLine()) != null) {
+                fullResponse.concat(line);
+            }
+        } catch (IOException ioe) {
+            alive = false;
+        } finally {
+            try {
+                if (inputStream != null) inputStream.close();
+            } catch (IOException ioe) {
+                // nothing to see here
+            }
+        }
+        checked = new Date();
+
+        Log.d("WebHawk", "Result page: " + url + " ---> " + alive);
     }
 
     boolean isMalformedURL() {
@@ -101,10 +76,6 @@ public class Website {
 
     void setAlive(boolean aliveIn) {
         alive = aliveIn;
-    }
-
-    Date getChecked() {
-        return checked;
     }
 
     public String getURL() {

@@ -9,7 +9,6 @@ import android.support.design.widget.TextInputLayout;
 import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.widget.EditText;
-import android.widget.LinearLayout;
 
 public class AddWebsite extends DialogFragment {
 
@@ -64,7 +63,7 @@ public class AddWebsite extends DialogFragment {
     }
 
     public interface NoticeDialogListener {
-        public void onDialogPositiveClick(DialogFragment dialog);
+        void onDialogPositiveClick(DialogFragment dialog);
     }
 
     // Use this instance of the interface to deliver action events

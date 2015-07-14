@@ -1,11 +1,19 @@
 package com.laserfountain.webhawk;
 
+import android.app.AlarmManager;
 import android.app.DialogFragment;
+import android.app.PendingIntent;
+import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
-import android.content.SharedPreferences;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.IBinder;
 import android.os.Message;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -14,59 +22,81 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.ArrayAdapter;
 import android.widget.EditText;
-import android.widget.ListView;
-import android.widget.Toast;
-
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.Calendar;
 
 
-public class MainActivity extends AppCompatActivity implements AddWebsite.NoticeDialogListener, Website.WebsiteUpdatedListener{
+public class MainActivity extends AppCompatActivity implements AddWebsite.NoticeDialogListener{
 
-    private RecyclerView listView;
-    private RecyclerView.LayoutManager layoutManager;
     SwipeRefreshLayout swipeRefreshLayout;
 
     ArrayList<Website> websites;
     WebsiteAdapter arrayAdapter;
+
+    UpdateService mService;
+    private boolean mBound;
+
+    /** Defines callbacks for service binding, passed to bindService() */
+    private ServiceConnection mConnection = new ServiceConnection() {
+
+        @Override
+        public void onServiceConnected(ComponentName className,
+                                       IBinder service) {
+            // We've bound to UpdateService, cast the IBinder and get UpdateService instance
+            UpdateService.LocalBinder binder = (UpdateService.LocalBinder) service;
+            mService = binder.getService();
+            mBound = true;
+
+            // Load all the websites
+            reloadWebsites();
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName arg0) {
+            mBound = false;
+        }
+    };
+
+    // Broadcast receiver that gets called whenever there is new data from the service
+    private BroadcastReceiver mMessageReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            // Update the list
+            reloadWebsites();
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        listView = (RecyclerView) findViewById(R.id.listView);
+        RecyclerView recyclerView = (RecyclerView) findViewById(R.id.listView);
         swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.activity_main_swipe_refresh_layout);
 
         // using this to improve performance as changes in content
         // do not change the layout size of the RecyclerView
-        listView.setHasFixedSize(true);
+        recyclerView.setHasFixedSize(true);
 
         // use a linear layout manager
-        layoutManager = new LinearLayoutManager(this);
-        listView.setLayoutManager(layoutManager);
+        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this);
+        recyclerView.setLayoutManager(layoutManager);
 
-        websites = new ArrayList<Website>();
+        websites = new ArrayList<>();
         arrayAdapter = new WebsiteAdapter(this, websites);
-
-        // Load all the websites
-        loadFromStorage();
 
         // Hide the empty default view if there are items
         if (!websites.isEmpty()) {
             findViewById(R.id.empty).setVisibility(View.GONE);
+        } else {
+            findViewById(R.id.empty).setVisibility(View.VISIBLE);
         }
 
         // Set up the view
-        listView.addItemDecoration(new DividerItemDecoration(this));
-        listView.setAdapter(arrayAdapter);
+        recyclerView.addItemDecoration(new DividerItemDecoration(this));
+        recyclerView.setAdapter(arrayAdapter);
 
         // Set up swipe to refresh
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
@@ -80,7 +110,8 @@ public class MainActivity extends AppCompatActivity implements AddWebsite.Notice
         // Set up a timer to update the view every minute, needed for timestamps to update.
         Thread timer = new Thread() {
             public void run () {
-                for (;;) {
+                //noinspection InfiniteLoopStatement
+                while (true) {
                     uiCallback.sendEmptyMessage(0);
                     try {
                         Thread.sleep(60000);    // sleep for 60 seconds
@@ -93,11 +124,43 @@ public class MainActivity extends AppCompatActivity implements AddWebsite.Notice
         };
         timer.start();
 
+        Intent intent = new Intent(this, UpdateService.class);
+        Log.d("WebHawk", "Trying to start service");
+        startService(intent);
+        Log.d("WebHawk", "Tried to start service");
+
+        // Receive messages from service so we know when to update
+        LocalBroadcastManager.getInstance(this).registerReceiver(mMessageReceiver,
+                new IntentFilter("WEBSITE_DATA_UPDATED"));
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        // Bind to UpdateService
+        Intent intent = new Intent(this, UpdateService.class);
+        bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        // Unbind from the service
+        if (mBound) {
+            unbindService(mConnection);
+            mBound = false;
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        // Unregister from the broadcast from service
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(mMessageReceiver);
+        super.onDestroy();
     }
 
     private Handler uiCallback = new Handler () {
         public void handleMessage (Message msg) {
-            saveToStorage();
             arrayAdapter.notifyDataSetChanged();
         }
     };
@@ -124,8 +187,9 @@ public class MainActivity extends AppCompatActivity implements AddWebsite.Notice
         return super.onOptionsItemSelected(item);
     }
 
+    @SuppressWarnings("unused")
     public void addClicked(View v) {
-        showAddDialog(new String());
+        showAddDialog("");
     }
 
     private void showAddDialog(String url) {
@@ -134,85 +198,38 @@ public class MainActivity extends AppCompatActivity implements AddWebsite.Notice
     }
 
     private void checkAll() {
-        for (Website website : websites) {
-            website.check();
+        if (mBound) {
+            mService.checkAll();
         }
         swipeRefreshLayout.setRefreshing(false);
     }
 
     void addWebsite(String url) {
-        Website newWebsite = new Website(url, this);
+        Website newWebsite = new Website(url);
         if (newWebsite.isMalformedURL()) {
             showAddDialog(url);
             return;
         }
-        websites.add(newWebsite);
+        mService.addWebsite(newWebsite);
 
-        saveToStorage();
-
-        // Refresh the listing
-        arrayAdapter.notifyDataSetChanged();
+        reloadWebsites();
     }
 
-    private void saveToStorage() {
-        SharedPreferences preferences = getPreferences(Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = preferences.edit();
+    public void reloadWebsites() {
+        if (mBound) {
+            ArrayList<Website> items = mService.getWebsites();
+            // Replace the list of websites in the class
+            websites.clear();
+            websites.addAll(items);
 
-        Set<String> set= new HashSet<String>();
-        for (int i = 0; i < websites.size(); i++) {
-            set.add(websites.get(i).getJSONObject().toString());
+            // Refresh the listing
+            arrayAdapter.notifyDataSetChanged();
         }
-
-        editor.putStringSet("allWebsites", set);
-        editor.commit();
-    }
-
-    public void loadFromStorage() {
-        SharedPreferences preferences = getPreferences(Context.MODE_PRIVATE);
-
-        ArrayList<Website> items = new ArrayList<Website>();
-
-        Set<String> set = preferences.getStringSet("allWebsites", new HashSet<String>());
-        for (String s : set) {
-            try {
-                JSONObject jsonObject = new JSONObject(s);
-                String url = jsonObject.getString("url");
-                Date checked;
-                try {
-                    checked = new Date(jsonObject.getLong("checked"));
-                } catch (JSONException e) {
-                    checked = new Date(0);
-                }
-                Boolean alive;
-                try {
-                    alive = jsonObject.getBoolean("alive");
-                } catch (JSONException e) {
-                    alive = false;
-                }
-                Website website = new Website(url, checked, this);
-                    website.setAlive(alive);
-
-                items.add(website);
-
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-        }
-
-        // Replace the list of websites in the class
-        websites.clear();
-        websites.addAll(items);
     }
 
     @Override
     public void onDialogPositiveClick(DialogFragment dialog) {
         EditText urlField = (EditText) dialog.getDialog().findViewById(R.id.add_url);
         addWebsite(urlField.getText().toString());
-    }
-
-    @Override
-    public void onWebsiteUpdated() {
-        arrayAdapter.notifyDataSetChanged();
-        saveToStorage();
     }
 }
