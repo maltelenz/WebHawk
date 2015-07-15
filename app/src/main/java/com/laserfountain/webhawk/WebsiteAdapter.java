@@ -27,7 +27,7 @@ public class WebsiteAdapter extends RecyclerView.Adapter<WebsiteAdapter.ViewHold
         }
     }
 
-    public WebsiteAdapter(Context context, ArrayList<Website> websites) {
+    public WebsiteAdapter(ArrayList<Website> websites) {
         this.websites = websites;
     }
 
@@ -37,8 +37,7 @@ public class WebsiteAdapter extends RecyclerView.Adapter<WebsiteAdapter.ViewHold
                                                    int viewType) {
         // create a new view
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.website_item, parent, false);
-        ViewHolder viewHolder = new ViewHolder(view);
-        return viewHolder;
+        return new ViewHolder(view);
     }
 
     // Replace the contents of a view (invoked by the layout manager)

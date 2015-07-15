@@ -82,7 +82,7 @@ public class MainActivity extends AppCompatActivity implements AddWebsite.Notice
         recyclerView.setLayoutManager(layoutManager);
 
         websites = new ArrayList<>();
-        arrayAdapter = new WebsiteAdapter(this, websites);
+        arrayAdapter = new WebsiteAdapter(websites);
 
         // Hide the empty default view if there are items
         if (!websites.isEmpty()) {

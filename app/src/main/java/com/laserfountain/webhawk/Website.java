@@ -1,8 +1,5 @@
 package com.laserfountain.webhawk;
 
-import android.app.Activity;
-import android.os.AsyncTask;
-import android.os.Bundle;
 import android.text.format.DateUtils;
 import android.util.Log;
 
