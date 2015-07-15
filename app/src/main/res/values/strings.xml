@@ -11,4 +11,7 @@
     <string name="cancel">Cancel</string>
     <string name="url">URL</string>
     <string name="invalid_url">Invalid URL</string>
+    <string name="pref_key_check_interval_summary">Minutes between checking</string>
+    <string name="pref_key_check_interval_title">Update interval</string>
+    <string name="pref_key_check_interval">pref_key_check_interval</string>
 </resources>

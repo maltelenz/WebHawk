@@ -27,6 +27,7 @@ import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity implements AddWebsite.NoticeDialogListener{
 
+    private static final int PREFS_UPDATED = 1;
     SwipeRefreshLayout swipeRefreshLayout;
 
     ArrayList<Website> websites;
@@ -129,19 +130,13 @@ public class MainActivity extends AppCompatActivity implements AddWebsite.Notice
     @Override
     protected void onStart() {
         super.onStart();
-        // Bind to UpdateService
-        Intent intent = new Intent(this, UpdateService.class);
-        bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
+        bindToService();
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-        // Unbind from the service
-        if (mBound) {
-            unbindService(mConnection);
-            mBound = false;
-        }
+        unbindFromService();
     }
 
     @Override
@@ -171,12 +166,27 @@ public class MainActivity extends AppCompatActivity implements AddWebsite.Notice
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
+            Intent intent = new Intent(this, SettingsActivity.class);
+            startActivityForResult(intent, PREFS_UPDATED);
             return true;
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    private void bindToService() {
+        // Bind to UpdateService
+        Intent intent = new Intent(this, UpdateService.class);
+        bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
+    }
+
+    private void unbindFromService() {
+        // Unbind from the service
+        if (mBound) {
+            unbindService(mConnection);
+            mBound = false;
+        }
     }
 
     @SuppressWarnings("unused")
@@ -223,5 +233,16 @@ public class MainActivity extends AppCompatActivity implements AddWebsite.Notice
     public void onDialogPositiveClick(DialogFragment dialog) {
         EditText urlField = (EditText) dialog.getDialog().findViewById(R.id.add_url);
         addWebsite(urlField.getText().toString());
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        switch (resultCode) {
+            case PREFS_UPDATED:
+                // restart service
+                unbindFromService();
+                bindToService();
+                break;
+        }
     }
 }

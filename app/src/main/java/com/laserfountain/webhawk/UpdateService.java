@@ -14,6 +14,7 @@ import android.os.HandlerThread;
 import android.os.IBinder;
 import android.os.Looper;
 import android.os.Message;
+import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.TaskStackBuilder;
 import android.support.v4.content.LocalBroadcastManager;
@@ -33,8 +34,6 @@ public class UpdateService extends Service {
     private final IBinder mBinder = new LocalBinder();
     private ArrayList<Website> websites;
     private final int NOTIFICATION_ID = 1;
-
-    final int pollIntervalMilliSeconds = 1000 * 60 * 60;
 
     public class LocalBinder extends Binder {
         UpdateService getService() {
@@ -174,13 +173,21 @@ public class UpdateService extends Service {
 
     @Override
     public void onCreate() {
+        // Load default values for preferences
+        PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
+
         // Set up AlarmManager to start the service regularly
         Calendar cal = Calendar.getInstance();
         cal.add(Calendar.SECOND, 10);
         Intent serviceIntent = new Intent(this, UpdateService.class);
         PendingIntent pendingIntent = PendingIntent.getService(this, 0, serviceIntent, 0);
         AlarmManager alarm = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
+        int intervalInMinutes = Integer.valueOf(sharedPref.getString(getResources().getString(R.string.pref_key_check_interval), "60"));
+        int pollIntervalMilliSeconds = 1000 * 60 * intervalInMinutes;
         alarm.setRepeating(AlarmManager.RTC_WAKEUP, cal.getTimeInMillis(), pollIntervalMilliSeconds, pendingIntent);
+
+        Log.d("WebHawk", "Just set an alarm with the interval " + Integer.toString(intervalInMinutes));
 
         // Load the websites from storage
         fetchStorage();
