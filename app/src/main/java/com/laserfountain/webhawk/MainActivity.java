@@ -124,11 +124,6 @@ public class MainActivity extends AppCompatActivity implements AddWebsite.Notice
         };
         timer.start();
 
-        Intent intent = new Intent(this, UpdateService.class);
-        Log.d("WebHawk", "Trying to start service");
-        startService(intent);
-        Log.d("WebHawk", "Tried to start service");
-
         // Receive messages from service so we know when to update
         LocalBroadcastManager.getInstance(this).registerReceiver(mMessageReceiver,
                 new IntentFilter("WEBSITE_DATA_UPDATED"));

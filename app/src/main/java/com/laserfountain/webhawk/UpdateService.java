@@ -1,6 +1,9 @@
 package com.laserfountain.webhawk;
 
 import android.annotation.SuppressLint;
+import android.app.AlarmManager;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
@@ -11,6 +14,8 @@ import android.os.HandlerThread;
 import android.os.IBinder;
 import android.os.Looper;
 import android.os.Message;
+import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.TaskStackBuilder;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
@@ -18,6 +23,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
@@ -26,6 +32,9 @@ public class UpdateService extends Service {
     private ServiceHandler mServiceHandler;
     private final IBinder mBinder = new LocalBinder();
     private ArrayList<Website> websites;
+    private final int NOTIFICATION_ID = 1;
+
+    final int pollIntervalMilliSeconds = 1000 * 60 * 60;
 
     public class LocalBinder extends Binder {
         UpdateService getService() {
@@ -47,8 +56,72 @@ public class UpdateService extends Service {
                 sendUpdateMessage();
                 saveToStorage();
             }
-            Log.d("WebHawk", "Saving websites");
+
+            updateNotifaction();
+
+            if (msg.arg2 != -1) {
+                // We can stop here.
+                stopSelf(msg.arg1);
+            }
         }
+    }
+
+    private void updateNotifaction() {
+        NotificationManager mNotificationManager =
+                (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        int nrBroken = 0;
+        for (Website website : websites) {
+            if (!website.isAlive()) {
+                nrBroken++;
+            }
+        }
+        if (nrBroken == 0) {
+            // Cancel the notification
+            mNotificationManager.cancel(NOTIFICATION_ID);
+        }
+
+        // There are unavailable sites, so show a notification
+        NotificationCompat.Builder mBuilder =
+                new NotificationCompat.Builder(this)
+                        .setSmallIcon(R.drawable.ic_error_black_48dp)
+                        .setContentTitle("Webhawk")
+                        .setContentText(Integer.toString(nrBroken) + " websites unavailable")
+                        .setAutoCancel(true);
+
+        NotificationCompat.InboxStyle inboxStyle =
+                new NotificationCompat.InboxStyle();
+        // Sets a title for the Inbox in expanded layout
+        inboxStyle.setBigContentTitle(Integer.toString(nrBroken) + " websites unavailable:");
+        // Moves events into the expanded layout
+        for (Website website : websites) {
+            if (!website.isAlive()) {
+                inboxStyle.addLine(website.getURL());
+            }
+        }
+
+        // Move the expanded layout object into the notification object.
+        mBuilder.setStyle(inboxStyle);
+
+        // Creates an explicit intent for an Activity in your app
+        Intent resultIntent = new Intent(this, MainActivity.class);
+
+        // The stack builder object will contain an artificial back stack for the
+        // started Activity.
+        // This ensures that navigating backward from the Activity leads out of
+        // your application to the Home screen.
+        TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
+        // Adds the back stack for the Intent (but not the Intent itself)
+        stackBuilder.addParentStack(MainActivity.class);
+        // Adds the Intent that starts the Activity to the top of the stack
+        stackBuilder.addNextIntent(resultIntent);
+        PendingIntent resultPendingIntent =
+                stackBuilder.getPendingIntent(
+                        0,
+                        PendingIntent.FLAG_UPDATE_CURRENT
+                );
+        mBuilder.setContentIntent(resultPendingIntent);
+        // mId allows you to update the notification later on.
+        mNotificationManager.notify(NOTIFICATION_ID, mBuilder.build());
     }
 
     @SuppressLint("CommitPrefEdits")
@@ -101,6 +174,14 @@ public class UpdateService extends Service {
 
     @Override
     public void onCreate() {
+        // Set up AlarmManager to start the service regularly
+        Calendar cal = Calendar.getInstance();
+        cal.add(Calendar.SECOND, 10);
+        Intent serviceIntent = new Intent(this, UpdateService.class);
+        PendingIntent pendingIntent = PendingIntent.getService(this, 0, serviceIntent, 0);
+        AlarmManager alarm = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+        alarm.setRepeating(AlarmManager.RTC_WAKEUP, cal.getTimeInMillis(), pollIntervalMilliSeconds, pendingIntent);
+
         // Load the websites from storage
         fetchStorage();
 
@@ -115,15 +196,22 @@ public class UpdateService extends Service {
         // Get the HandlerThread's Looper and use it for our Handler
         Looper mServiceLooper = thread.getLooper();
         mServiceHandler = new ServiceHandler(mServiceLooper);
-
-        // Check all websites
-        checkAll();
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        // If we get killed, after returning from here, restart
-        return START_STICKY;
+        // Check all websites
+        checkAll(startId);
+
+        // If we get killed, after returning from here, that's ok, an alarm will start us again
+        return  START_NOT_STICKY;
+    }
+
+    // checkAll that also results in stopSelf()
+    private void checkAll(int startId) {
+        Message msg = mServiceHandler.obtainMessage();
+        msg.arg1 = startId;
+        mServiceHandler.sendMessage(msg);
     }
 
     @Override
@@ -141,6 +229,7 @@ public class UpdateService extends Service {
 
     public void checkAll() {
         Message msg = mServiceHandler.obtainMessage();
+        msg.arg2 = -1;
         mServiceHandler.sendMessage(msg);
     }
 
