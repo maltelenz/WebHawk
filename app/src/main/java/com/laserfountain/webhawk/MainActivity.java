@@ -241,6 +241,7 @@ public class MainActivity extends AppCompatActivity implements AddWebsite.Notice
             case PREFS_UPDATED:
                 // restart service
                 unbindFromService();
+                stopService(new Intent(this, UpdateService.class));
                 bindToService();
                 break;
         }
