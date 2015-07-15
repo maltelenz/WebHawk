@@ -1,8 +1,6 @@
 package com.laserfountain.webhawk;
 
-import android.app.AlarmManager;
 import android.app.DialogFragment;
-import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
@@ -25,7 +23,6 @@ import android.view.View;
 import android.widget.EditText;
 
 import java.util.ArrayList;
-import java.util.Calendar;
 
 
 public class MainActivity extends AppCompatActivity implements AddWebsite.NoticeDialogListener{
