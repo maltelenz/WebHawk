@@ -176,12 +176,14 @@ public class MainActivity extends AppCompatActivity implements AddWebsite.Notice
     }
 
     private void bindToService() {
+        Log.w("WebHawk", "Binding service");
         // Bind to UpdateService
         Intent intent = new Intent(this, UpdateService.class);
         bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
     }
 
     private void unbindFromService() {
+        Log.w("WebHawk", "Unbinding service");
         // Unbind from the service
         if (mBound) {
             unbindService(mConnection);
@@ -241,6 +243,7 @@ public class MainActivity extends AppCompatActivity implements AddWebsite.Notice
             case PREFS_UPDATED:
                 // restart service
                 unbindFromService();
+                Log.w("WebHawk", "Stopping service");
                 stopService(new Intent(this, UpdateService.class));
                 bindToService();
                 break;

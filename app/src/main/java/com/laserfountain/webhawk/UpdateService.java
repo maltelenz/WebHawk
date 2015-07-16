@@ -60,6 +60,7 @@ public class UpdateService extends Service {
 
             if (msg.arg2 != -1) {
                 // We can stop here.
+                Log.w("WebHawk", "Service stopSelf");
                 stopSelf(msg.arg1);
             }
         }
@@ -173,18 +174,20 @@ public class UpdateService extends Service {
 
     @Override
     public void onCreate() {
+        Log.w("WebHawk", "Service onCreate");
         // Load default values for preferences
         PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
 
         // Set up AlarmManager to start the service regularly
-        Calendar cal = Calendar.getInstance();
-        cal.add(Calendar.SECOND, 10);
-        Intent serviceIntent = new Intent(this, UpdateService.class);
-        PendingIntent pendingIntent = PendingIntent.getService(this, 0, serviceIntent, 0);
-        AlarmManager alarm = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
         int intervalInMinutes = Integer.valueOf(sharedPref.getString(getResources().getString(R.string.pref_key_check_interval), "60"));
         int pollIntervalMilliSeconds = 1000 * 60 * intervalInMinutes;
+
+        Calendar cal = Calendar.getInstance();
+        cal.add(Calendar.MILLISECOND, pollIntervalMilliSeconds);
+        Intent serviceIntent = new Intent(this, UpdateService.class);
+        PendingIntent pendingIntent = PendingIntent.getService(this, 0, serviceIntent, 0);
+        AlarmManager alarm = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
         alarm.setRepeating(AlarmManager.RTC_WAKEUP, cal.getTimeInMillis(), pollIntervalMilliSeconds, pendingIntent);
 
         Log.d("WebHawk", "Just set an alarm with the interval " + Integer.toString(intervalInMinutes));
@@ -203,13 +206,16 @@ public class UpdateService extends Service {
         // Get the HandlerThread's Looper and use it for our Handler
         Looper mServiceLooper = thread.getLooper();
         mServiceHandler = new ServiceHandler(mServiceLooper);
+        Log.w("WebHawk", "Service onCreate end");
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        Log.w("WebHawk", "Service onStartCommand");
         // Check all websites
         checkAll(startId);
 
+        Log.w("WebHawk", "Service onStartCommand return");
         // If we get killed, after returning from here, that's ok, an alarm will start us again
         return  START_NOT_STICKY;
     }
@@ -223,6 +229,7 @@ public class UpdateService extends Service {
 
     @Override
     public IBinder onBind(Intent intent) {
+        Log.w("WebHawk", "Service onBind");
         return mBinder;
     }
 
