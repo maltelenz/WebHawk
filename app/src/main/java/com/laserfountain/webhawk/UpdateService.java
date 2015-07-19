@@ -2,6 +2,7 @@ package com.laserfountain.webhawk;
 
 import android.annotation.SuppressLint;
 import android.app.AlarmManager;
+import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
@@ -83,10 +84,11 @@ public class UpdateService extends Service {
         // There are unavailable sites, so show a notification
         NotificationCompat.Builder mBuilder =
                 new NotificationCompat.Builder(this)
-                        .setSmallIcon(R.drawable.ic_error_black_48dp)
+                        .setSmallIcon(R.drawable.error)
                         .setContentTitle("Webhawk")
                         .setContentText(Integer.toString(nrBroken) + " websites unavailable")
-                        .setAutoCancel(true);
+                        .setAutoCancel(true)
+                        .setPriority(Notification.PRIORITY_HIGH);
 
         NotificationCompat.InboxStyle inboxStyle =
                 new NotificationCompat.InboxStyle();
