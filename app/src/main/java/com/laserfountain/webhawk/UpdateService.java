@@ -85,10 +85,20 @@ public class UpdateService extends Service {
         NotificationCompat.Builder mBuilder =
                 new NotificationCompat.Builder(this)
                         .setSmallIcon(R.drawable.error)
+                        .setColor(getResources().getColor(R.color.error))
                         .setContentTitle("Webhawk")
-                        .setContentText(Integer.toString(nrBroken) + " websites unavailable")
+                        .setContentText("Websites unavailable")
+                        .setNumber(nrBroken)
                         .setAutoCancel(true)
-                        .setPriority(Notification.PRIORITY_HIGH);
+                        .setPriority(Notification.PRIORITY_HIGH)
+                        .setOnlyAlertOnce(true);
+
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
+        boolean vibrate = sharedPref.getBoolean(getResources().getString(R.string.pref_key_vibrate), true);
+
+        if (vibrate) {
+            mBuilder.setVibrate(new long[] { 100, 100, 75, 100});
+        }
 
         NotificationCompat.InboxStyle inboxStyle =
                 new NotificationCompat.InboxStyle();

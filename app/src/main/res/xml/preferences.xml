@@ -1,9 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
     <EditTextPreference
-        android:key="pref_key_check_interval"
+        android:key="@string/pref_key_check_interval"
         android:summary="@string/pref_key_check_interval_summary"
         android:title="@string/pref_key_check_interval_title"
         android:inputType="number"
         android:defaultValue="60"/>
+    <CheckBoxPreference
+        android:key="@string/pref_key_vibrate"
+        android:title="@string/pref_key_vibrate_title"
+        android:summary="@string/pref_key_vibrate_summary"
+        android:defaultValue="true"/>
 </PreferenceScreen>

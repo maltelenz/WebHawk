@@ -14,4 +14,7 @@
     <string name="pref_key_check_interval_summary">Minutes between checking</string>
     <string name="pref_key_check_interval_title">Update interval</string>
     <string name="pref_key_check_interval">pref_key_check_interval</string>
+    <string name="pref_key_vibrate">pref_key_vibrate</string>
+    <string name="pref_key_vibrate_summary">Vibrate for unavailable websites</string>
+    <string name="pref_key_vibrate_title">Vibrate</string>
 </resources>
