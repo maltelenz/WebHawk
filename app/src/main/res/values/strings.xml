@@ -1,7 +1,6 @@
 <resources>
     <string name="app_name">WebHawk</string>
 
-    <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
     <string name="action_refresh">Refresh</string>
     <string name="emptyText">Press the + to add a website to monitor.</string>
@@ -20,4 +19,5 @@
     <string name="pref_key_check_title">Check automatically</string>
     <string name="pref_key_check_summaryOn">Check website availability regularly</string>
     <string name="pref_key_check_summaryOff">Only check website availability manually</string>
+    <string name="title_activity_settings">Settings</string>
 </resources>
