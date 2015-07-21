@@ -15,6 +15,9 @@
     <string name="pref_key_check_interval_title">Update interval</string>
     <string name="pref_key_check_interval">pref_key_check_interval</string>
     <string name="pref_key_vibrate">pref_key_vibrate</string>
-    <string name="pref_key_vibrate_summary">Vibrate for unavailable websites</string>
     <string name="pref_key_vibrate_title">Vibrate</string>
+    <string name="pref_key_check">pref_key_check</string>
+    <string name="pref_key_check_title">Check automatically</string>
+    <string name="pref_key_check_summaryOn">Check website availability regularly</string>
+    <string name="pref_key_check_summaryOff">Only check website availability manually</string>
 </resources>

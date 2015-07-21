@@ -57,7 +57,7 @@ public class UpdateService extends Service {
                 saveToStorage();
             }
 
-            updateNotifaction();
+            updateNotification();
 
             if (msg.arg2 != -1) {
                 // We can stop here.
@@ -67,7 +67,7 @@ public class UpdateService extends Service {
         }
     }
 
-    private void updateNotifaction() {
+    private void updateNotification() {
         NotificationManager mNotificationManager =
                 (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         int nrBroken = 0;
@@ -97,7 +97,7 @@ public class UpdateService extends Service {
         boolean vibrate = sharedPref.getBoolean(getResources().getString(R.string.pref_key_vibrate), true);
 
         if (vibrate) {
-            mBuilder.setVibrate(new long[] { 100, 100, 75, 100});
+            mBuilder.setVibrate(new long[]{100, 100, 75, 100});
         }
 
         NotificationCompat.InboxStyle inboxStyle =
@@ -195,14 +195,21 @@ public class UpdateService extends Service {
         int intervalInMinutes = Integer.valueOf(sharedPref.getString(getResources().getString(R.string.pref_key_check_interval), "60"));
         int pollIntervalMilliSeconds = 1000 * 60 * intervalInMinutes;
 
+        boolean checkAutomatically = sharedPref.getBoolean(getResources().getString(R.string.pref_key_check), true);
+
         Calendar cal = Calendar.getInstance();
         cal.add(Calendar.MILLISECOND, pollIntervalMilliSeconds);
         Intent serviceIntent = new Intent(this, UpdateService.class);
         PendingIntent pendingIntent = PendingIntent.getService(this, 0, serviceIntent, 0);
         AlarmManager alarm = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-        alarm.setRepeating(AlarmManager.RTC_WAKEUP, cal.getTimeInMillis(), pollIntervalMilliSeconds, pendingIntent);
 
-        Log.d("WebHawk", "Just set an alarm with the interval " + Integer.toString(intervalInMinutes));
+        if (checkAutomatically) {
+            alarm.setRepeating(AlarmManager.RTC_WAKEUP, cal.getTimeInMillis(), pollIntervalMilliSeconds, pendingIntent);
+
+            Log.d("WebHawk", "Just set an alarm with the interval " + Integer.toString(intervalInMinutes));
+        } else {
+            alarm.cancel(pendingIntent);
+        }
 
         // Load the websites from storage
         fetchStorage();
