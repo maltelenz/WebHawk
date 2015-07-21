@@ -33,6 +33,7 @@ public class Website  implements Serializable {
             malformedURL = true;
         }
         checked = checkedIn;
+        alive = false;
     }
 
     void check() {
@@ -41,7 +42,6 @@ public class Website  implements Serializable {
         BufferedReader bufferedReader;
         String line;
         String fullResponse = "";
-
         try {
             inputStream = url.openStream();
             bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
@@ -49,8 +49,10 @@ public class Website  implements Serializable {
             while ((line = bufferedReader.readLine()) != null) {
                 fullResponse.concat(line);
             }
+            alive = true;
         } catch (IOException ioe) {
             alive = false;
+            Log.d("WebHawk", "Error: " + url + "  --> " + ioe.getMessage());
         } finally {
             try {
                 if (inputStream != null) inputStream.close();

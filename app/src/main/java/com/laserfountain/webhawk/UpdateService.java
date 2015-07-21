@@ -79,6 +79,7 @@ public class UpdateService extends Service {
         if (nrBroken == 0) {
             // Cancel the notification
             mNotificationManager.cancel(NOTIFICATION_ID);
+            return;
         }
 
         // There are unavailable sites, so show a notification
