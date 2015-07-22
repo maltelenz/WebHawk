@@ -151,13 +151,11 @@ public class MainActivity extends AppCompatActivity implements AddWebsite.Notice
 
             @Override
             public void onDestroyActionMode(ActionMode mode) {
-                // TODO Auto-generated method stub
                 arrayAdapter.removeSelection();
             }
 
             @Override
             public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
-                // TODO Auto-generated method stub
                 return false;
             }
         });
