@@ -3,7 +3,8 @@
     android:orientation="horizontal"
     android:layout_height="wrap_content"
     android:minHeight="72dp"
-    android:layout_width="match_parent">
+    android:layout_width="match_parent"
+    android:background="?android:attr/activatedBackgroundIndicator">
 
     <ImageView
         android:layout_width="40dp"
@@ -23,6 +24,16 @@
         android:layout_marginLeft="16dp"
         android:layout_marginTop="16dp" />
 
+    <ImageView
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:id="@+id/selected"
+        android:src="@drawable/ic_refresh_black_24dp"
+        android:tint="@color/error"
+        android:layout_marginLeft="16dp"
+        android:layout_marginTop="16dp"
+        android:visibility="gone"/>
+
     <LinearLayout
         android:orientation="vertical"
         android:layout_width="match_parent"
@@ -35,13 +46,13 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:textAppearance="?android:attr/textAppearanceMediumInverse"
             android:id="@+id/url"
             android:text="http://example.com" />
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textAppearance="?android:attr/textAppearanceSmallInverse"
             android:id="@+id/date_checked"
             android:text="Sun Jul 12 21:44" />
     </LinearLayout>

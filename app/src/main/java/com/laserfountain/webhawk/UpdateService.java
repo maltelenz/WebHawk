@@ -50,16 +50,23 @@ public class UpdateService extends Service {
         }
         @Override
         public void handleMessage(Message msg) {
-            Log.d("WebHawk", "Checking websites");
-            for (Website website : websites) {
-                website.check();
+            if (msg.arg2 < 0) {
+                Log.d("WebHawk", "Checking all websites");
+                for (Website website : websites) {
+                    website.check();
+                    sendUpdateMessage();
+                    saveToStorage();
+                }
+            } else if (msg.arg2 > -1) {
+                Log.d("WebHawk", "Checking one website");
+                websites.get(msg.arg2).check();
                 sendUpdateMessage();
                 saveToStorage();
             }
 
             updateNotification();
 
-            if (msg.arg2 != -1) {
+            if (msg.arg2 < -1) {
                 // We can stop here.
                 Log.w("WebHawk", "Service stopSelf");
                 stopSelf(msg.arg1);
@@ -244,6 +251,7 @@ public class UpdateService extends Service {
     private void checkAll(int startId) {
         Message msg = mServiceHandler.obtainMessage();
         msg.arg1 = startId;
+        msg.arg2 = -2;
         mServiceHandler.sendMessage(msg);
     }
 
@@ -260,6 +268,12 @@ public class UpdateService extends Service {
 
     // Public functions intended to be called (among other places)
     // from the controlling activity
+
+    public void check(Website website) {
+        Message msg = mServiceHandler.obtainMessage();
+        msg.arg2 = websites.indexOf(website);
+        mServiceHandler.sendMessage(msg);
+    }
 
     public void checkAll() {
         Message msg = mServiceHandler.obtainMessage();

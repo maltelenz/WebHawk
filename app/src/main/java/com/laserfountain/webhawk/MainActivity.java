@@ -14,13 +14,15 @@ import android.os.Message;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.util.SparseBooleanArray;
+import android.view.ActionMode;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AbsListView;
 import android.widget.EditText;
+import android.widget.ListView;
 
 import java.util.ArrayList;
 
@@ -31,6 +33,7 @@ public class MainActivity extends AppCompatActivity implements AddWebsite.Notice
     SwipeRefreshLayout swipeRefreshLayout;
 
     ArrayList<Website> websites;
+    private ListView listView;
     WebsiteAdapter arrayAdapter;
 
     UpdateService mService;
@@ -71,19 +74,65 @@ public class MainActivity extends AppCompatActivity implements AddWebsite.Notice
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        RecyclerView recyclerView = (RecyclerView) findViewById(R.id.listView);
+        listView = (ListView) findViewById(R.id.listView);
+        listView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE_MODAL);
+        listView.setItemsCanFocus(false);
+        listView.setMultiChoiceModeListener(new AbsListView.MultiChoiceModeListener() {
+
+            @Override
+            public void onItemCheckedStateChanged(ActionMode mode,
+                                                  int position, long id, boolean checked) {
+                // Capture total checked items
+                final int checkedCount = listView.getCheckedItemCount();
+                // Set the CAB title according to total checked items
+                mode.setTitle(checkedCount + " Selected");
+                // Calls toggleSelection method from ListViewAdapter Class
+                arrayAdapter.toggleSelection(position);
+            }
+
+            @Override
+            public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+                switch (item.getItemId()) {
+                    case R.id.action_refresh:
+                        SparseBooleanArray selected = arrayAdapter.getSelectedIds();
+                        for (int i = (selected.size() - 1); i >= 0; i--) {
+                            if (selected.valueAt(i)) {
+                                Website selectedItem = arrayAdapter.getItem(selected.keyAt(i));
+                                // Refresh selected items
+                                mService.check(selectedItem);
+                            }
+                        }
+                        // Close CAB
+                        mode.finish();
+                        return true;
+                    default:
+                        return false;
+                }
+            }
+
+            @Override
+            public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+                mode.getMenuInflater().inflate(R.menu.menu_main, menu);
+                return true;
+            }
+
+            @Override
+            public void onDestroyActionMode(ActionMode mode) {
+                // TODO Auto-generated method stub
+                arrayAdapter.removeSelection();
+            }
+
+            @Override
+            public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+                // TODO Auto-generated method stub
+                return false;
+            }
+        });
+
         swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.activity_main_swipe_refresh_layout);
 
-        // using this to improve performance as changes in content
-        // do not change the layout size of the RecyclerView
-        recyclerView.setHasFixedSize(true);
-
-        // use a linear layout manager
-        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this);
-        recyclerView.setLayoutManager(layoutManager);
-
         websites = new ArrayList<>();
-        arrayAdapter = new WebsiteAdapter(websites);
+        arrayAdapter = new WebsiteAdapter(getApplicationContext(), websites);
 
         // Hide the empty default view if there are items
         if (!websites.isEmpty()) {
@@ -93,8 +142,7 @@ public class MainActivity extends AppCompatActivity implements AddWebsite.Notice
         }
 
         // Set up the view
-        recyclerView.addItemDecoration(new DividerItemDecoration(this));
-        recyclerView.setAdapter(arrayAdapter);
+        listView.setAdapter(arrayAdapter);
 
         // Set up swipe to refresh
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
@@ -169,6 +217,9 @@ public class MainActivity extends AppCompatActivity implements AddWebsite.Notice
         if (id == R.id.action_settings) {
             Intent intent = new Intent(this, SettingsActivity.class);
             startActivityForResult(intent, PREFS_UPDATED);
+            return true;
+        } else if (id == R.id.action_refresh) {
+            //mService.check(arrayAdapter.getSelected());
             return true;
         }
 
