@@ -219,7 +219,7 @@ public class MainActivity extends AppCompatActivity implements AddWebsite.Notice
             startActivityForResult(intent, PREFS_UPDATED);
             return true;
         } else if (id == R.id.action_refresh) {
-            //mService.check(arrayAdapter.getSelected());
+            checkAll();
             return true;
         }
 
