@@ -281,6 +281,12 @@ public class UpdateService extends Service {
         mServiceHandler.sendMessage(msg);
     }
 
+    public void deleteWebsite(Website website) {
+        websites.remove(website);
+        sendUpdateMessage();
+        saveToStorage();
+    }
+
     public void addWebsite(Website site) {
         websites.add(site);
         sendUpdateMessage();

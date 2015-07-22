@@ -92,14 +92,25 @@ public class MainActivity extends AppCompatActivity implements AddWebsite.Notice
 
             @Override
             public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+                SparseBooleanArray selected = arrayAdapter.getSelectedIds();
                 switch (item.getItemId()) {
                     case R.id.action_refresh:
-                        SparseBooleanArray selected = arrayAdapter.getSelectedIds();
                         for (int i = (selected.size() - 1); i >= 0; i--) {
                             if (selected.valueAt(i)) {
                                 Website selectedItem = arrayAdapter.getItem(selected.keyAt(i));
                                 // Refresh selected items
                                 mService.check(selectedItem);
+                            }
+                        }
+                        // Close CAB
+                        mode.finish();
+                        return true;
+                    case R.id.action_delete:
+                        for (int i = (selected.size() - 1); i >= 0; i--) {
+                            if (selected.valueAt(i)) {
+                                Website selectedItem = arrayAdapter.getItem(selected.keyAt(i));
+                                // Refresh selected items
+                                mService.deleteWebsite(selectedItem);
                             }
                         }
                         // Close CAB
@@ -112,7 +123,7 @@ public class MainActivity extends AppCompatActivity implements AddWebsite.Notice
 
             @Override
             public boolean onCreateActionMode(ActionMode mode, Menu menu) {
-                mode.getMenuInflater().inflate(R.menu.menu_main, menu);
+                mode.getMenuInflater().inflate(R.menu.menu_selection, menu);
                 return true;
             }
 
