@@ -11,6 +11,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
+import android.support.design.widget.Snackbar;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
@@ -79,6 +80,8 @@ public class MainActivity extends AppCompatActivity implements AddWebsite.Notice
         listView.setItemsCanFocus(false);
         listView.setMultiChoiceModeListener(new AbsListView.MultiChoiceModeListener() {
 
+            ArrayList<Website> removedSites;
+
             @Override
             public void onItemCheckedStateChanged(ActionMode mode,
                                                   int position, long id, boolean checked) {
@@ -106,13 +109,32 @@ public class MainActivity extends AppCompatActivity implements AddWebsite.Notice
                         mode.finish();
                         return true;
                     case R.id.action_delete:
+                        removedSites = new ArrayList<Website>();
                         for (int i = (selected.size() - 1); i >= 0; i--) {
                             if (selected.valueAt(i)) {
-                                Website selectedItem = arrayAdapter.getItem(selected.keyAt(i));
+                                final Website selectedItem = arrayAdapter.getItem(selected.keyAt(i));
                                 // Refresh selected items
                                 mService.deleteWebsite(selectedItem);
+                                removedSites.add(selectedItem);
                             }
                         }
+                        String removedText;
+                        if(removedSites.size() > 1) {
+                            removedText = removedSites.size() + " websites removed";
+                        } else {
+                            removedText = "Website removed";
+                        }
+                        Snackbar snackbar = Snackbar.make(listView, removedText, Snackbar.LENGTH_LONG);
+                        snackbar.setAction("Undo", new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                for (int i = (removedSites.size() - 1); i >= 0; i--) {
+                                    mService.addWebsite(removedSites.get(i));
+                                }
+
+                            }
+                        });
+                        snackbar.show();
                         // Close CAB
                         mode.finish();
                         return true;
