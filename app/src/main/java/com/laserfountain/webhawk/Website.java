@@ -36,8 +36,25 @@ public class Website  implements Serializable {
         alive = false;
     }
 
+    private boolean internetAvailable() {
+        try {
+            Process ipProcess = Runtime.getRuntime().exec("/system/bin/ping -c 1 8.8.8.8");
+            return ipProcess.waitFor() == 0;
+        } catch (IOException e) {
+            // ignore
+        } catch (InterruptedException e) {
+            // ignore
+        }
+
+        return false;
+    }
+
     void check() {
         Log.d("WebHawk", "Checking page: " + url);
+        if (!internetAvailable()) {
+            Log.d("WebHawk", "Device offline when checking: " + url);
+            return;
+        }
         InputStream inputStream = null;
         BufferedReader bufferedReader;
         String line;
