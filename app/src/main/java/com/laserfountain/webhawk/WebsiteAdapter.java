@@ -9,7 +9,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -23,9 +25,9 @@ public class WebsiteAdapter extends ArrayAdapter<Website> {
     public static class ViewHolder {
         public TextView url;
         public TextView date;
-        public ImageView up;
-        public ImageView error;
+        public ImageView status;
         public ImageView open;
+        public FrameLayout icon;
     }
 
     public WebsiteAdapter(Context context, ArrayList<Website> websites) {
@@ -37,8 +39,8 @@ public class WebsiteAdapter extends ArrayAdapter<Website> {
     }
 
     @Override
-    public View getView(int position, View view, ViewGroup parent) {
-        ViewHolder holder;
+    public View getView(int position, View view, final ViewGroup parent) {
+        final ViewHolder holder;
 
         final Website website = websites.get(position);
         if (view == null) {
@@ -47,9 +49,9 @@ public class WebsiteAdapter extends ArrayAdapter<Website> {
             holder = new ViewHolder();
             holder.url = (TextView) view.findViewById(R.id.url);
             holder.date = (TextView) view.findViewById(R.id.date_checked);
-            holder.up = (ImageView) view.findViewById(R.id.up);
-            holder.error = (ImageView) view.findViewById(R.id.error);
+            holder.status = (ImageView) view.findViewById(R.id.status);
             holder.open = (ImageView) view.findViewById(R.id.open);
+            holder.icon = (FrameLayout) view.findViewById(R.id.icon);
             view.setTag(holder);
         } else {
             holder = (ViewHolder) view.getTag();
@@ -58,11 +60,11 @@ public class WebsiteAdapter extends ArrayAdapter<Website> {
         holder.url.setText(website.getURL());
 
         if (website.isAlive()) {
-            holder.up.setVisibility(View.VISIBLE);
-            holder.error.setVisibility(View.GONE);
+            holder.status.setImageResource(R.drawable.ic_lens_black_48dp);
+            holder.status.setColorFilter(context.getResources().getColor(R.color.success));
         } else {
-            holder.up.setVisibility(View.GONE);
-            holder.error.setVisibility(View.VISIBLE);
+            holder.status.setImageResource(R.drawable.ic_error_black_48dp);
+            holder.status.setColorFilter(context.getResources().getColor(R.color.error));
         }
         holder.date.setText(website.getHumanTimeChecked());
 
