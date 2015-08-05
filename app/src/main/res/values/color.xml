@@ -9,4 +9,5 @@
     <color name="black">#000000</color>
     <color name="error">#ff5252</color>
     <color name="success">#00e676</color>
+    <color name="gray">#757575</color>
 </resources>

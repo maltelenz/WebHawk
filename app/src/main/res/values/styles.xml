@@ -15,7 +15,4 @@
     <style name="MyActionBar" parent="Widget.AppCompat.Light.ActionBar.Solid.Inverse">
         <item name="background">@color/primary</item>
     </style>
-    <style name="AppCompatAlertDialogStyle" parent="Theme.AppCompat.Light.Dialog.Alert">
-        <item name="android:colorAccent">@color/accent</item>
-    </style>
 </resources>

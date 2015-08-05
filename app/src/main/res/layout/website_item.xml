@@ -1,59 +1,85 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="horizontal"
     android:layout_height="wrap_content"
     android:minHeight="72dp"
     android:layout_width="match_parent"
     android:background="@drawable/list_activated_background">
 
-    <ImageView
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-        android:id="@+id/up"
-        android:src="@drawable/ic_check_circle_black_48dp"
-        android:tint="@color/success"
-        android:layout_marginTop="16dp"
-        android:layout_marginLeft="16dp" />
+    <FrameLayout
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:id="@+id/icon">
 
-    <ImageView
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-        android:id="@+id/error"
-        android:src="@drawable/ic_error_black_48dp"
-        android:tint="@color/error"
-        android:layout_marginLeft="16dp"
-        android:layout_marginTop="16dp" />
+        <ImageView
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:id="@+id/up"
+            android:src="@drawable/ic_check_circle_black_48dp"
+            android:tint="@color/success"
+            android:layout_marginTop="16dp"
+            android:layout_marginStart="16dp" />
 
-    <ImageView
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-        android:id="@+id/selected"
-        android:src="@drawable/ic_refresh_black_24dp"
-        android:tint="@color/error"
-        android:layout_marginLeft="16dp"
-        android:layout_marginTop="16dp"
-        android:visibility="gone"/>
+        <ImageView
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:id="@+id/error"
+            android:src="@drawable/ic_error_black_48dp"
+            android:tint="@color/error"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="16dp" />
+
+        <ImageView
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:id="@+id/selected"
+            android:src="@drawable/ic_refresh_black_24dp"
+            android:tint="@color/error"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="16dp"
+            android:visibility="gone"/>
+
+    </FrameLayout>
 
     <LinearLayout
         android:orientation="vertical"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_marginLeft="16dp"
         android:layout_marginRight="16dp"
         android:paddingTop="16dp"
-        android:paddingBottom="16dp">
+        android:paddingBottom="16dp"
+        android:layout_toEndOf="@+id/icon"
+        android:id="@+id/linearLayout"
+        android:layout_alignParentTop="true">
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceMediumInverse"
+            android:textAppearance="?android:attr/textAppearanceMedium"
             android:id="@+id/url"
             android:text="http://example.com" />
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceSmallInverse"
+            android:textAppearance="?android:attr/textAppearanceSmall"
             android:id="@+id/date_checked"
             android:text="Sun Jul 12 21:44" />
     </LinearLayout>
-</LinearLayout>
+
+    <ImageView
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:id="@+id/open"
+        android:src="@drawable/ic_open_in_browser_black_48dp"
+        android:tint="@color/gray"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginRight="16dp"
+        android:layout_marginLeft="24dp"
+        android:layout_marginTop="24dp"
+        android:layout_marginBottom="24dp" />
+
+</RelativeLayout>

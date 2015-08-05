@@ -1,6 +1,9 @@
 package com.laserfountain.webhawk;
 
 import android.content.Context;
+import android.content.Intent;
+import android.net.Uri;
+import android.util.Log;
 import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -22,6 +25,7 @@ public class WebsiteAdapter extends ArrayAdapter<Website> {
         public TextView date;
         public ImageView up;
         public ImageView error;
+        public ImageView open;
     }
 
     public WebsiteAdapter(Context context, ArrayList<Website> websites) {
@@ -36,7 +40,7 @@ public class WebsiteAdapter extends ArrayAdapter<Website> {
     public View getView(int position, View view, ViewGroup parent) {
         ViewHolder holder;
 
-        Website website = websites.get(position);
+        final Website website = websites.get(position);
         if (view == null) {
             view = inflater.inflate(R.layout.website_item, parent, false);
 
@@ -45,6 +49,7 @@ public class WebsiteAdapter extends ArrayAdapter<Website> {
             holder.date = (TextView) view.findViewById(R.id.date_checked);
             holder.up = (ImageView) view.findViewById(R.id.up);
             holder.error = (ImageView) view.findViewById(R.id.error);
+            holder.open = (ImageView) view.findViewById(R.id.open);
             view.setTag(holder);
         } else {
             holder = (ViewHolder) view.getTag();
@@ -60,6 +65,15 @@ public class WebsiteAdapter extends ArrayAdapter<Website> {
             holder.error.setVisibility(View.VISIBLE);
         }
         holder.date.setText(website.getHumanTimeChecked());
+
+        holder.open.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.d("Webhawk", "Clicked open on: " + website.getURL());
+                Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(website.getURL()));
+                context.startActivity(intent);
+            }
+        });
         return view;
     }
 

@@ -109,7 +109,7 @@ public class MainActivity extends AppCompatActivity implements AddWebsite.Notice
                         mode.finish();
                         return true;
                     case R.id.action_delete:
-                        removedSites = new ArrayList<Website>();
+                        removedSites = new ArrayList<>();
                         for (int i = (selected.size() - 1); i >= 0; i--) {
                             if (selected.valueAt(i)) {
                                 final Website selectedItem = arrayAdapter.getItem(selected.keyAt(i));
@@ -119,7 +119,7 @@ public class MainActivity extends AppCompatActivity implements AddWebsite.Notice
                             }
                         }
                         String removedText;
-                        if(removedSites.size() > 1) {
+                        if (removedSites.size() > 1) {
                             removedText = removedSites.size() + " websites removed";
                         } else {
                             removedText = "Website removed";
@@ -163,7 +163,7 @@ public class MainActivity extends AppCompatActivity implements AddWebsite.Notice
         swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.activity_main_swipe_refresh_layout);
 
         websites = new ArrayList<>();
-        arrayAdapter = new WebsiteAdapter(getApplicationContext(), websites);
+        arrayAdapter = new WebsiteAdapter(this, websites);
 
         // Hide the empty default view if there are items
         if (!websites.isEmpty()) {

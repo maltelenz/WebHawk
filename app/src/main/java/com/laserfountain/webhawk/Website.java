@@ -40,9 +40,7 @@ public class Website  implements Serializable {
         try {
             Process ipProcess = Runtime.getRuntime().exec("/system/bin/ping -c 1 8.8.8.8");
             return ipProcess.waitFor() == 0;
-        } catch (IOException e) {
-            // ignore
-        } catch (InterruptedException e) {
+        } catch (IOException | InterruptedException e) {
             // ignore
         }
 
