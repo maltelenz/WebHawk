@@ -288,6 +288,7 @@ public class UpdateService extends Service {
 
     public void deleteWebsite(Website website) {
         websites.remove(website);
+        updateNotification();
         sendUpdateMessage();
         saveToStorage();
     }
