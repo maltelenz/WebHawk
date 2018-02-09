@@ -90,6 +90,10 @@ public class UpdateService extends Service {
         }
 
         // There are unavailable sites, so show a notification
+
+        Intent serviceIntent = new Intent(this, UpdateService.class);
+        PendingIntent pendingIntent = PendingIntent.getService(this, 0, serviceIntent, 0);
+
         NotificationCompat.Builder mBuilder =
                 new NotificationCompat.Builder(this)
                         .setSmallIcon(R.drawable.error)
@@ -99,7 +103,8 @@ public class UpdateService extends Service {
                         .setNumber(nrBroken)
                         .setAutoCancel(true)
                         .setPriority(Notification.PRIORITY_HIGH)
-                        .setOnlyAlertOnce(true);
+                        .setOnlyAlertOnce(true)
+                        .addAction(R.drawable.error, "Refresh all", pendingIntent);
 
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
         boolean vibrate = sharedPref.getBoolean(getResources().getString(R.string.pref_key_vibrate), true);
