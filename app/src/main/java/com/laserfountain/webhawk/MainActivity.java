@@ -299,6 +299,7 @@ public class MainActivity extends AppCompatActivity implements AddWebsite.Notice
         mService.addWebsite(newWebsite);
 
         reloadWebsites();
+        checkAll();
     }
 
     public void reloadWebsites() {
